@@ -6,6 +6,7 @@ RESULTS_DIR = '/allResults'
 BETAS_DIR = '/allBetas'
 BETAS_INCLUDE_CLAUSE = ".allBetas."
 RESULTS_INCLUDE_CLAUSE = ".allResults."
+TISSUE_SPLIT = "." # string to split the source file name when looking for tissue name
 
 BETA_HEADER_TOKENS = {"gene", "rsid", "ref", "alt", "beta", "alpha"}
 RESULTS_HEADER_TOKENS = {"gene", "alpha", "cvm", "lambda.iteration", "lambda.min", "n.snps", "R2", "pval", "genename"}
@@ -58,7 +59,7 @@ def generate_weights_file():
     class DB:
         "This encapsulates a single SQLite DB (for a given source file and alpha)."
         def __init__(self, source_file, alpha, target_dir=TARGET_DIR):
-            tissue_name = os.path.basename(source_file).split('.')[0]
+            tissue_name = os.path.basename(source_file).split(TISSUE_SPLIT)[0]
             db_filename = os.path.join(target_dir, '%s_%s.db'%(tissue_name, alpha))
             if not os.path.exists(target_dir):
                 os.mkdir(target_dir)
@@ -140,7 +141,7 @@ def add_extra_data():
     class DB:
         "This encapsulates a single SQLite DB (for a given source file and alpha)."
         def __init__(self, source_file, alpha, target_dir=TARGET_DIR):
-            tissue_name = os.path.basename(source_file).split('.')[0]
+            tissue_name = os.path.basename(source_file).split(TISSUE_SPLIT)[0]
             db_filename = os.path.join(target_dir, '%s_%s.db'%(tissue_name, alpha))
             print(db_filename) ## delete after debug finished
             assert(os.path.exists(db_filename))
@@ -218,6 +219,10 @@ if __name__ == '__main__':
                         help="Pattern for results file name to adhere to",
                         default=".allResults.")
 
+    parser.add_argument("--tissue_split",
+                        help="String to split file names when looking for tissue name",
+                        default=".")
+
     args = parser.parse_args()
     SOURCE_DIR = args.input_folder
     RESULTS_DIR = args.results_sub_folder
@@ -225,6 +230,7 @@ if __name__ == '__main__':
     TARGET_DIR = args.output_folder
     BETAS_INCLUDE_CLAUSE = args.betas_include_clause
     RESULTS_INCLUDE_CLAUSE = args.results_include_clause
+    TISSUE_SPLIT = args.tissue_split
 
     generate_weights_file()
     add_extra_data()
